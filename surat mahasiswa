@@ -148,7 +148,7 @@
 
     <script>
         // GANTI URL INI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
-        const APPS_SCRIPT_URL = 'URL_APPS_SCRIPT_ANDA_DISINI';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweIkYrC6HddF88UnlVhWI4ufwI_t0Jfomkii2cFW5iShN2DdQBgJzVegMe0tzs6O1EkA/exec';
 
         function bukaForm(jenis) {
             document.getElementById('menu-section').classList.add('hidden');
