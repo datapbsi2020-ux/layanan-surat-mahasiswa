@@ -11,6 +11,8 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .slide-down { animation: slideDown 0.3s ease-out; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        /* Style untuk tabel admin agar scrollable jika data banyak */
+        .table-container { max-height: 400px; overflow-y: auto; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex flex-col">
@@ -24,9 +26,7 @@
                     <p class="text-xs text-blue-200 hidden sm:block">Fakultas Keguruan dan Ilmu Pendidikan</p>
                 </div>
             </div>
-            
             <div class="flex items-center space-x-4">
-                <span class="hidden md:block font-medium text-blue-200 text-sm">LAYANAN MAHASISWA</span>
                 <button onclick="bukaModalLogin()" class="bg-blue-900 hover:bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-bold transition shadow-inner border border-blue-700 flex items-center gap-2">
                     <i class="fas fa-user-shield"></i> <span>Menu Admin</span>
                 </button>
@@ -37,328 +37,169 @@
     <div id="login-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 backdrop-blur-sm transition-opacity">
         <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm slide-down border-t-4 border-gray-800">
             <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <i class="fas fa-lock text-2xl text-gray-700"></i>
-                </div>
+                <i class="fas fa-lock text-4xl text-gray-700 mb-3"></i>
                 <h2 class="text-2xl font-bold text-gray-800">Otorisasi Admin</h2>
-                <p class="text-sm text-gray-500 mt-1">Masukkan PIN Keamanan Admin FKIP</p>
             </div>
-            <input type="password" id="pin-admin" placeholder="••••••" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-center text-2xl tracking-widest mb-2 outline-none transition" onkeypress="cekEnter(event)">
-            <p id="error-pin" class="text-red-500 text-xs text-center font-bold hidden mb-4"><i class="fas fa-exclamation-triangle mr-1"></i> PIN Salah! Akses Ditolak.</p>
+            <input type="password" id="pin-admin" placeholder="••••••" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-center text-2xl tracking-widest mb-2" onkeypress="cekEnter(event)">
+            <p id="error-pin" class="text-red-500 text-xs text-center font-bold hidden mb-4">PIN Salah!</p>
             <div class="flex gap-3 mt-4">
-                <button onclick="tutupModalLogin()" class="w-1/2 bg-gray-100 text-gray-700 font-bold py-2.5 px-4 rounded-lg hover:bg-gray-200 transition">Batal</button>
-                <button onclick="validasiLogin()" class="w-1/2 bg-gray-800 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-black transition">Masuk</button>
+                <button onclick="tutupModalLogin()" class="w-1/2 bg-gray-100 text-gray-700 font-bold py-2.5 rounded-lg hover:bg-gray-200">Batal</button>
+                <button onclick="validasiLogin()" class="w-1/2 bg-gray-800 text-white font-bold py-2.5 rounded-lg hover:bg-black">Masuk</button>
             </div>
         </div>
     </div>
 
-    <main class="flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 relative">
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 relative">
         
-        <div id="admin-dashboard" class="hidden fade-in bg-white rounded-2xl shadow-xl p-8 border border-gray-200 border-t-4 border-gray-800">
+        <div id="admin-dashboard" class="hidden fade-in bg-white rounded-2xl shadow-xl p-8 border-t-4 border-gray-800">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 mb-6 gap-4">
                 <div>
-                    <h2 class="text-2xl font-black text-gray-800 flex items-center gap-3">
-                        <i class="fas fa-user-shield text-gray-700"></i> Panel Kontrol Admin
-                    </h2>
-                    <p class="text-xs text-gray-500 mt-1">Sistem Pemrosesan & Integrasi Google Drive</p>
+                    <h2 class="text-2xl font-black text-gray-800 flex items-center gap-3"><i class="fas fa-user-shield text-gray-700"></i> Panel Kontrol Admin</h2>
                 </div>
-                <button onclick="logoutAdmin()" class="text-red-600 hover:text-red-800 font-bold px-4 py-2 bg-red-50 hover:bg-red-100 rounded-lg transition text-sm flex items-center gap-2">
-                    <i class="fas fa-sign-out-alt"></i> Keluar Panel Admin
+                <button onclick="logoutAdmin()" class="text-red-600 font-bold px-4 py-2 bg-red-50 hover:bg-red-100 rounded-lg transition text-sm flex items-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i> Keluar
                 </button>
             </div>
 
-            <p class="text-gray-600 mb-8">Selamat datang kembali, Admin. Di bawah ini adalah menu integrasi langsung berkas surat-menyurat mahasiswa ke Google Workspace:</p>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <a href="https://drive.google.com/drive/folders/1QXqbeqPtDs_iFp9-Tw2iD4CC73pmgNJu" target="_blank" class="block bg-gradient-to-br from-blue-700 to-indigo-900 text-white rounded-2xl p-6 shadow-md hover:shadow-2xl hover:-translate-y-1 transition transform duration-300 relative overflow-hidden group">
-                    <div class="absolute right-4 bottom-4 text-7xl opacity-15 group-hover:scale-110 transition duration-300">
-                        <i class="fas fa-print"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-2 flex items-center gap-2">
-                        <i class="fas fa-folder-open text-blue-300"></i> Cetak Surat Resmi
-                    </h3>
-                    <p class="text-blue-100 text-sm max-w-md relative z-10">Masuk ke folder arsip utama Google Drive. Anda dapat mengunduh, mengedit, atau langsung mencetak dokumen yang telah diisi otomatis oleh mahasiswa.</p>
-                    <div class="mt-4 inline-flex items-center text-xs font-bold bg-white bg-opacity-20 px-3 py-1.5 rounded-md tracking-wider uppercase">
-                        Buka Folder Arsip <i class="fas fa-external-link-alt ml-2"></i>
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <a href="https://drive.google.com/drive/folders/1QXqbeqPtDs_iFp9-Tw2iD4CC73pmgNJu" target="_blank" class="bg-blue-700 text-white rounded-xl p-4 shadow flex items-center justify-between hover:bg-blue-800 transition">
+                    <div><h3 class="font-bold text-lg"><i class="fas fa-print mr-2"></i> Buka Arsip PDF</h3><p class="text-xs text-blue-200">Print surat yang sudah jadi</p></div>
+                    <i class="fas fa-external-link-alt text-2xl opacity-50"></i>
                 </a>
-
-                <a href="https://docs.google.com/spreadsheets/d/1FedUPaVwsZMNviUpZQ--VLcNTxt8hurShRAMVQm2TG4/edit" target="_blank" class="block bg-gradient-to-br from-green-700 to-teal-900 text-white rounded-2xl p-6 shadow-md hover:shadow-2xl hover:-translate-y-1 transition transform duration-300 relative overflow-hidden group">
-                    <div class="absolute right-4 bottom-4 text-7xl opacity-15 group-hover:scale-110 transition duration-300">
-                        <i class="fas fa-table"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-2 flex items-center gap-2">
-                        <i class="fas fa-database text-green-300"></i> Database Excel (Sheets)
-                    </h3>
-                    <p class="text-green-100 text-sm max-w-md relative z-10">Melihat lembar rekapitulasi data pendaftaran surat mahasiswa se-fakultas secara *real-time* untuk kebutuhan arsip pelaporan data internal.</p>
-                    <div class="mt-4 inline-flex items-center text-xs font-bold bg-white bg-opacity-20 px-3 py-1.5 rounded-md tracking-wider uppercase">
-                        Buka Google Sheets <i class="fas fa-external-link-alt ml-2"></i>
-                    </div>
+                <a href="https://docs.google.com/spreadsheets/d/1FedUPaVwsZMNviUpZQ--VLcNTxt8hurShRAMVQm2TG4/edit" target="_blank" class="bg-green-700 text-white rounded-xl p-4 shadow flex items-center justify-between hover:bg-green-800 transition">
+                    <div><h3 class="font-bold text-lg"><i class="fas fa-table mr-2"></i> Buka Database Excel</h3><p class="text-xs text-green-200">Lihat format raw data</p></div>
+                    <i class="fas fa-external-link-alt text-2xl opacity-50"></i>
                 </a>
+            </div>
+
+            <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                <div class="bg-gray-100 px-6 py-4 flex justify-between items-center border-b border-gray-200">
+                    <h3 class="font-bold text-gray-800"><i class="fas fa-list-alt mr-2 text-gray-600"></i> Riwayat Permohonan Terbaru</h3>
+                    <button onclick="muatDataSpreadsheet()" class="text-blue-600 hover:text-blue-800 text-sm font-bold flex items-center gap-1">
+                        <i class="fas fa-sync-alt" id="icon-refresh"></i> Refresh Data
+                    </button>
+                </div>
+                <div class="table-container bg-white p-0">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead class="bg-gray-50 text-gray-600 sticky top-0 shadow-sm">
+                            <tr>
+                                <th class="p-3 border-b">Waktu Pengajuan</th>
+                                <th class="p-3 border-b">Jenis Surat</th>
+                                <th class="p-3 border-b">NPM</th>
+                                <th class="p-3 border-b">Nama Mahasiswa</th>
+                                <th class="p-3 border-b">Program Studi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-data-mahasiswa">
+                            <tr><td colspan="5" class="p-8 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-2xl mb-2 text-blue-500 block"></i> Memuat data dari Google Sheets...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <div id="menu-section" class="fade-in">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-black text-gray-900 tracking-tight">LAYANAN MAHASISWA</h2>
-                <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">Silakan pilih jenis pelayanan administrasi surat di bawah ini. Isi data dengan benar agar dokumen Anda segera diproses sistem.</p>
-            </div>
-
+            <div class="text-center mb-10"><h2 class="text-4xl font-black text-gray-900 tracking-tight">LAYANAN MAHASISWA</h2></div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                <div onclick="bukaForm('Surat Aktif')" class="bg-white rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-2xl hover:-translate-y-1.5 transition transform duration-300 border border-gray-100 border-t-4 border-blue-600 group">
-                    <div class="text-blue-600 text-4xl mb-5 group-hover:scale-110 transition duration-300"><i class="fas fa-user-check"></i></div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">Surat Keterangan Aktif</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed">Pengajuan resmi surat aktif mengikuti kegiatan perkuliahan semester berjalan.</p>
-                </div>
-                
-                <div onclick="bukaForm('Surat Tunjangan Gaji')" class="bg-white rounded-xl shadow-md p-8 cursor-pointer hover:shadow-2xl hover:-translate-y-1.5 transition transform duration-300 border border-gray-100 border-t-4 border-green-600 group">
-                    <div class="text-green-600 text-4xl mb-5 group-hover:scale-110 transition duration-300"><i class="fas fa-file-invoice-dollar"></i></div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">Surat Tunjangan Gaji</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed">Surat keterangan aktif kuliah khusus pengajuan persyaratan tunjangan instansi kerja orang tua.</p>
-                </div>
-
-                <div onclick="bukaForm('Surat Penelitian')" class="bg-white rounded-xl shadow-md p-8 cursor-pointer hover:shadow-2xl hover:-translate-y-1.5 transition transform duration-300 border border-gray-100 border-t-4 border-purple-600 group">
-                    <div class="text-purple-600 text-4xl mb-5 group-hover:scale-110 transition duration-300"><i class="fas fa-microscope"></i></div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">Surat Izin Penelitian</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed">Pengajuan surat permohonan izin uji validasi instrumen atau observasi lapangan tugas skripsi ke sekolah tujuan.</p>
-                </div>
+                <div onclick="bukaForm('Surat Aktif')" class="bg-white rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition border-t-4 border-blue-600 text-center"><i class="fas fa-user-check text-4xl text-blue-600 mb-4"></i><h3 class="font-bold">Surat Aktif</h3></div>
+                <div onclick="bukaForm('Surat Tunjangan Gaji')" class="bg-white rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition border-t-4 border-green-600 text-center"><i class="fas fa-file-invoice-dollar text-4xl text-green-600 mb-4"></i><h3 class="font-bold">Surat Tunjangan Gaji</h3></div>
+                <div onclick="bukaForm('Surat Penelitian')" class="bg-white rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition border-t-4 border-purple-600 text-center"><i class="fas fa-microscope text-4xl text-purple-600 mb-4"></i><h3 class="font-bold">Surat Izin Penelitian</h3></div>
             </div>
         </div>
 
-        <div id="form-section" class="hidden fade-in bg-white rounded-2xl shadow-xl p-8 max-w-3xl mx-auto border border-gray-200 border-t-4 border-blue-800">
-            <button onclick="kembaliKeMenu()" class="text-blue-700 hover:text-blue-900 mb-6 flex items-center font-bold bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition text-sm shadow-sm">
-                <i class="fas fa-arrow-left mr-2"></i> Kembali ke Menu Utama
-            </button>
-            
-            <h2 id="form-title" class="text-2xl font-black text-gray-800 mb-6 border-b pb-3 flex items-center gap-2">Formulir Pengajuan</h2>
-
+        <div id="form-section" class="hidden fade-in bg-white rounded-2xl shadow-xl p-8 max-w-3xl mx-auto border-t-4 border-blue-800">
+            <button onclick="kembaliKeMenu()" class="text-blue-700 font-bold mb-6 flex items-center bg-blue-50 px-4 py-2 rounded-xl text-sm"><i class="fas fa-arrow-left mr-2"></i> Kembali</button>
+            <h2 id="form-title" class="text-2xl font-black mb-6 border-b pb-3">Formulir</h2>
             <form id="pengajuanForm" onsubmit="kirimData(event)">
                 <input type="hidden" id="jenis_surat" name="jenis_surat">
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Nama Lengkap Mahasiswa</label>
-                        <input type="text" id="nama" placeholder="Contoh: Bambang Tri Utomo" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition bg-gray-50 focus:bg-white" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">NPM (Nomor Pokok Mahasiswa)</label>
-                        <input type="text" id="npm" placeholder="Contoh: 882010121026" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition bg-gray-50 focus:bg-white" required>
-                    </div>
-                    <div class="field-akademik">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Semester Aktif</label>
-                        <input type="text" id="semester" placeholder="Contoh: Ganjil / VI (Enam)" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition bg-gray-50 focus:bg-white">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Program Studi (S-1)</label>
-                        <select id="prodi" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition bg-gray-50 focus:bg-white font-medium" required>
-                            <option value="">-- Pilih Program Studi --</option>
-                            <option value="Pendidikan Bahasa Inggris">Pendidikan Bahasa Inggris</option>
-                            <option value="Pendidikan Bahasa dan Sastra Indonesia">Pendidikan Bahasa dan Sastra Indonesia</option>
-                            <option value="Pendidikan Biologi">Pendidikan Biologi</option>
-                            <option value="Pendidikan Matematika">Pendidikan Matematika</option>
+                    <div><label class="block text-sm font-bold mb-1">Nama Mahasiswa</label><input type="text" id="nama" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50" required></div>
+                    <div><label class="block text-sm font-bold mb-1">NPM</label><input type="text" id="npm" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50" required></div>
+                    <div class="field-akademik"><label class="block text-sm font-bold mb-1">Semester</label><input type="text" id="semester" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50"></div>
+                    <div><label class="block text-sm font-bold mb-1">Program Studi</label>
+                        <select id="prodi" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50" required>
+                            <option value="">-- Pilih --</option>
+                            <option value="Pend. Bahasa Inggris">Pend. Bahasa Inggris</option>
+                            <option value="Pend. Bahasa Indonesia">Pend. Bahasa Indonesia</option>
+                            <option value="Pend. Biologi">Pend. Biologi</option>
+                            <option value="Pend. Matematika">Pend. Matematika</option>
                         </select>
                     </div>
-
-                    <div class="field-pribadi md:col-span-2">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Tempat, Tanggal Lahir</label>
-                        <input type="text" id="ttl" placeholder="Contoh: Indramayu, 18 Januari 2003" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition bg-gray-50 focus:bg-white">
-                    </div>
-                    <div class="field-pribadi md:col-span-2">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Alamat Rumah Lengkap (Sesuai KTP)</label>
-                        <textarea id="alamat" rows="2" placeholder="Contoh: Kelurahan Margadadi RT 07 RW 07, Kec. Indramayu, Kab. Indramayu" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition bg-gray-50 focus:bg-white"></textarea>
-                    </div>
-                    <div class="field-aktif">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Nomor WhatsApp Aktif</label>
-                        <input type="text" id="whatsapp" placeholder="Contoh: 081234567890" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition bg-gray-50 focus:bg-white">
+                    <div class="field-pribadi md:col-span-2"><label class="block text-sm font-bold mb-1">Tempat, Tgl Lahir</label><input type="text" id="ttl" class="w-full px-4 py-2 border rounded-lg bg-gray-50"></div>
+                    <div class="field-pribadi md:col-span-2"><label class="block text-sm font-bold mb-1">Alamat Lengkap</label><textarea id="alamat" class="w-full px-4 py-2 border rounded-lg bg-gray-50"></textarea></div>
+                    <div class="field-aktif"><label class="block text-sm font-bold mb-1">No. WhatsApp</label><input type="text" id="whatsapp" class="w-full px-4 py-2 border rounded-lg bg-gray-50"></div>
+                    
+                    <div class="field-tunjangan hidden bg-green-50 p-4 rounded-lg md:col-span-2 grid grid-cols-2 gap-4 border border-green-200">
+                        <h3 class="col-span-2 font-bold text-green-800 text-sm border-b border-green-200 pb-1">Data Orang Tua</h3>
+                        <div><label class="block text-sm font-bold mb-1">Nama Ortu</label><input type="text" id="nama_ortu" class="w-full px-4 py-2 border rounded-lg"></div>
+                        <div><label class="block text-sm font-bold mb-1">NIP</label><input type="text" id="nip_ortu" class="w-full px-4 py-2 border rounded-lg"></div>
+                        <div class="col-span-2"><label class="block text-sm font-bold mb-1">Pangkat/Golongan</label><input type="text" id="pangkat_ortu" class="w-full px-4 py-2 border rounded-lg"></div>
                     </div>
 
-                    <div class="field-tunjangan hidden bg-green-50 p-5 rounded-xl md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 border border-green-200 mt-2">
-                        <h3 class="md:col-span-2 font-extrabold text-green-800 text-sm uppercase tracking-wide border-b border-green-200 pb-2 flex items-center gap-2">
-                            <i class="fas fa-users"></i> Informasi Data Orang Tua / Wali
-                        </h3>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Nama Orang Tua / Wali</label>
-                            <input type="text" id="nama_ortu" placeholder="Nama ayah/ibu kandung" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-white">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">NIP (Jika PNS/BUMN)</label>
-                            <input type="text" id="nip_ortu" placeholder="Isi '-' jika tidak ada NIP" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-white">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Pangkat / Golongan</label>
-                            <input type="text" id="pangkat_ortu" placeholder="Contoh: Pembina - IV/a (Atau isi pekerjaan swasta)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-white">
-                        </div>
-                    </div>
-
-                    <div class="field-penelitian hidden bg-purple-50 p-5 rounded-xl md:col-span-2 grid grid-cols-1 gap-4 border border-purple-200 mt-2">
-                        <h3 class="font-extrabold text-purple-800 text-sm uppercase tracking-wide border-b border-purple-200 pb-2 flex items-center gap-2">
-                            <i class="fas fa-book"></i> Detail Keperluan Validasi & Skripsi
-                        </h3>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Tujuan Surat (Kepada Yth.)</label>
-                            <input type="text" id="tujuan_surat" placeholder="Contoh: Kepala SMA Negeri 2 Indramayu" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none bg-white">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Judul Lengkap Penelitian / Skripsi</label>
-                            <textarea id="judul_skripsi" rows="2" placeholder="Contoh: Pengaruh Media Augmented Reality Dalam Sistem Reproduksi Manusia Terhadap Literasi Kesehatan Siswa" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none bg-white"></textarea>
-                        </div>
+                    <div class="field-penelitian hidden bg-purple-50 p-4 rounded-lg md:col-span-2 grid grid-cols-1 gap-4 border border-purple-200">
+                        <h3 class="font-bold text-purple-800 text-sm border-b border-purple-200 pb-1">Data Penelitian</h3>
+                        <div><label class="block text-sm font-bold mb-1">Tujuan Surat</label><input type="text" id="tujuan_surat" class="w-full px-4 py-2 border rounded-lg"></div>
+                        <div><label class="block text-sm font-bold mb-1">Judul Skripsi</label><textarea id="judul_skripsi" class="w-full px-4 py-2 border rounded-lg"></textarea></div>
                     </div>
                 </div>
-
-                <div class="mt-8">
-                    <button type="submit" id="btn-submit" class="w-full bg-blue-800 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-blue-900 transition duration-300 flex justify-center items-center shadow-md">
-                        <i class="fas fa-paper-plane mr-2"></i> <span id="btn-text">Kirim Permohonan Surat Resmi</span>
-                    </button>
-                </div>
+                <button type="submit" id="btn-submit" class="w-full bg-blue-800 text-white font-bold py-3 mt-6 rounded-xl hover:bg-blue-900"><i class="fas fa-paper-plane mr-2"></i> Kirim Permohonan</button>
             </form>
-            
-            <div id="pesan-sukses" class="hidden mt-6 bg-green-50 border-l-4 border-green-500 text-green-800 p-5 rounded-xl shadow-inner">
-                <div class="flex items-center">
-                    <i class="fas fa-check-circle text-3xl text-green-500 mr-4"></i>
-                    <div>
-                        <strong class="font-bold block text-lg">Permohonan Berhasil Dikirim!</strong>
-                        <span class="text-sm text-green-700">Data Anda telah terekam secara otomatis ke pusat data fakultas. Silakan hubungi bagian Tata Usaha FKIP untuk penandatanganan berkas fisik surat Anda.</span>
-                    </div>
-                </div>
-            </div>
+            <div id="pesan-sukses" class="hidden mt-6 bg-green-50 text-green-800 p-4 rounded-xl border border-green-200 font-bold text-center">Permohonan Berhasil Dikirim dan Diproses ke PDF!</div>
         </div>
     </main>
 
-    <footer class="bg-gray-900 text-gray-400 text-center py-6 text-sm mt-auto border-t border-gray-800">
-        <div class="max-w-7xl mx-auto px-4">
-            <p class="font-bold text-gray-300">Sistem Informasi Akademik - FKIP Universitas Wiralodra Indramayu</p>
-            <p class="text-xs text-gray-500 mt-1">&copy; 2026 Layanan Administrasi Terpadu Serverless Cloud. All rights reserved.</p>
-        </div>
-    </footer>
-
     <script>
-        // =========================================================
-        // KUNCI KONFIGURASI KEAMANAN & BACKEND LINK
-        // =========================================================
-        const PIN_ADMIN_BENAR = "123456"; // PIN Kunci Masuk Panel Admin (Bisa diganti bebas)
+        const PIN_ADMIN_BENAR = "123456"; 
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweIkYrC6HddF88UnlVhWI4ufwI_t0Jfomkii2cFW5iShN2DdQBgJzVegMe0tzs6O1EkA/exec';
 
-        // --- SISTEM PANEL ADMIN (MODAL & VALIDASI PIN) ---
-        function bukaModalLogin() {
-            document.getElementById('login-modal').classList.remove('hidden');
-            document.getElementById('pin-admin').value = '';
-            document.getElementById('error-pin').classList.add('hidden');
-            document.getElementById('pin-admin').focus();
-        }
-
-        function tutupModalLogin() {
-            document.getElementById('login-modal').classList.add('hidden');
-        }
-
-        function cekEnter(event) {
-            if (event.key === "Enter") validasiLogin();
-        }
+        function bukaModalLogin() { document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('pin-admin').value = ''; document.getElementById('error-pin').classList.add('hidden'); }
+        function tutupModalLogin() { document.getElementById('login-modal').classList.add('hidden'); }
+        function cekEnter(e) { if (e.key === "Enter") validasiLogin(); }
 
         function validasiLogin() {
-            const pinInput = document.getElementById('pin-admin').value;
-            if (pinInput === PIN_ADMIN_BENAR) {
+            if (document.getElementById('pin-admin').value === PIN_ADMIN_BENAR) {
                 tutupModalLogin();
                 document.getElementById('menu-section').classList.add('hidden');
                 document.getElementById('form-section').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
+                // OTOMATIS MEMUAT DATA SPREADSHEET SAAT ADMIN LOGIN!
+                muatDataSpreadsheet();
             } else {
                 document.getElementById('error-pin').classList.remove('hidden');
             }
         }
 
-        function logoutAdmin() {
-            document.getElementById('admin-dashboard').classList.add('hidden');
-            document.getElementById('menu-section').classList.remove('hidden');
-        }
+        function logoutAdmin() { document.getElementById('admin-dashboard').classList.add('hidden'); document.getElementById('menu-section').classList.remove('hidden'); }
 
-        // --- KONTROL FORM DINAMIS MAHASISWA ---
-        function bukaForm(jenis) {
-            document.getElementById('menu-section').classList.add('hidden');
-            document.getElementById('admin-dashboard').classList.add('hidden');
-            document.getElementById('form-section').classList.remove('hidden');
-            document.getElementById('form-title').innerHTML = `<i class="fas fa-file-alt text-blue-700 mr-2"></i> Form Pengajuan: ${jenis}`;
-            document.getElementById('jenis_surat').value = jenis;
-            document.getElementById('pesan-sukses').classList.add('hidden');
-            document.getElementById('pengajuanForm').reset();
-            document.getElementById('pengajuanForm').classList.remove('hidden');
-
-            const fPribadi = document.querySelectorAll('.field-pribadi');
-            const fAktif = document.querySelectorAll('.field-aktif');
-            const fAkademik = document.querySelectorAll('.field-akademik');
-            const fTunjangan = document.querySelector('.field-tunjangan');
-            const fPenelitian = document.querySelector('.field-penelitian');
-
-            fPribadi.forEach(el => el.classList.remove('hidden'));
-            fAktif.forEach(el => el.classList.remove('hidden'));
-            fAkademik.forEach(el => el.classList.remove('hidden'));
-            fTunjangan.classList.add('hidden');
-            fPenelitian.classList.add('hidden');
-
-            if (jenis === 'Surat Tunjangan Gaji') {
-                fAktif.forEach(el => el.classList.add('hidden')); 
-                fTunjangan.classList.remove('hidden'); 
-            } else if (jenis === 'Surat Penelitian') {
-                fPribadi.forEach(el => el.classList.add('hidden')); 
-                fAktif.forEach(el => el.classList.add('hidden'));   
-                fAkademik.forEach(el => el.classList.add('hidden')); 
-                fPenelitian.classList.remove('hidden'); 
-            }
-        }
-
-        function kembaliKeMenu() {
-            document.getElementById('form-section').classList.add('hidden');
-            document.getElementById('admin-dashboard').classList.add('hidden');
-            document.getElementById('menu-section').classList.remove('hidden');
-        }
-
-        // --- INTERFACES ASYNC KIRIM DATA KE GOOGLE SERVERLESS ---
-        async function kirimData(event) {
-            event.preventDefault();
-            const btnSubmit = document.getElementById('btn-submit');
+        // FUNGSI BARU: MENGAMBIL DATA DARI GOOGLE SHEETS
+        async function muatDataSpreadsheet() {
+            const tabelBody = document.getElementById('tabel-data-mahasiswa');
+            const iconRefresh = document.getElementById('icon-refresh');
             
-            btnSubmit.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> <span>Sedang Sinkronisasi Cloud...</span>';
-            btnSubmit.disabled = true;
-            btnSubmit.classList.replace('bg-blue-800', 'bg-gray-500');
-
-            const data = {
-                jenis_surat: document.getElementById('jenis_surat').value,
-                nama: document.getElementById('nama').value,
-                npm: document.getElementById('npm').value,
-                semester: document.getElementById('semester').value,
-                prodi: document.getElementById('prodi').value,
-                ttl: document.getElementById('ttl') ? document.getElementById('ttl').value : '',
-                alamat: document.getElementById('alamat') ? document.getElementById('alamat').value : '',
-                whatsapp: document.getElementById('whatsapp') ? document.getElementById('whatsapp').value : '',
-                nama_ortu: document.getElementById('nama_ortu') ? document.getElementById('nama_ortu').value : '',
-                nip_ortu: document.getElementById('nip_ortu') ? document.getElementById('nip_ortu').value : '',
-                pangkat_ortu: document.getElementById('pangkat_ortu') ? document.getElementById('pangkat_ortu').value : '',
-                judul_skripsi: document.getElementById('judul_skripsi') ? document.getElementById('judul_skripsi').value : '',
-                tujuan_surat: document.getElementById('tujuan_surat') ? document.getElementById('tujuan_surat').value : ''
-            };
-
+            iconRefresh.classList.add('fa-spin');
+            tabelBody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-2xl mb-2 text-blue-500 block"></i> Sinkronisasi Data Database...</td></tr>';
+            
             try {
-                await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', 
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                document.getElementById('pengajuanForm').classList.add('hidden');
-                document.getElementById('pesan-sukses').classList.remove('hidden');
-
-            } catch (error) {
-                alert("Koneksi gagal terhubung ke Google Drive. Pastikan jaringan internet stabil.");
-            } finally {
-                btnSubmit.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> <span>Kirim Permohonan Surat Resmi</span>';
-                btnSubmit.disabled = false;
-                btnSubmit.classList.replace('bg-gray-500', 'bg-blue-800');
+                // Mengambil data JSON dari Google Apps Script
+                const response = await fetch(APPS_SCRIPT_URL);
+                const data = await response.json();
                 
-                if (!document.getElementById('pesan-sukses').classList.contains('hidden')) {
-                    setTimeout(() => { kembaliKeMenu(); }, 4000);
-                }
-            }
-        }
-    </script>
-</body>
-</html>
+                tabelBody.innerHTML = ''; // Bersihkan tabel
+                
+                if(data.length === 0) {
+                    tabelBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Belum ada data permohonan surat.</td></tr>';
+                } else {
+                    // Masukkan data ke dalam tabel HTML
+                    data.forEach(item => {
+                        // Memberikan warna label berdasarkan jenis surat
+                        let badgeColor = item.jenis.includes("Aktif") ? "bg-blue-100 text-blue-800" : item.jenis.includes("Gaji") ? "bg-green-100 text-green-800" : "bg-purple-100 text-purple-800";
+                        
+                        tabelBody.innerHTML += `
+                            <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                                <td class="p-3 text-xs text-gray-500">${item.waktu.substring(0,19)}</td>
+                                <td class="p-3"><span class="px-2 py-1 rounded-md text-xs font-bold ${badgeColor}">${item.jenis}</span></td>
+                                <td class="p-3 font-mono text-sm">${item.npm}</td>
+                                <td class="p-3 font-bold text-gray-800">${item.nama}</td>
+                                <td class="p-3 text-sm">${item.prodi}</td>
+                            </tr>
+                        `;
