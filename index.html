@@ -203,3 +203,57 @@
                                 <td class="p-3 text-sm">${item.prodi}</td>
                             </tr>
                         `;
+                    });
+                }
+            } catch (error) {
+                tabelBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500 font-bold">Gagal memuat data. Pastikan Google Script sudah di-Deploy ulang.</td></tr>';
+            } finally {
+                iconRefresh.classList.remove('fa-spin');
+            }
+        }
+
+        function bukaForm(jenis) {
+            document.getElementById('menu-section').classList.add('hidden');
+            document.getElementById('form-section').classList.remove('hidden');
+            document.getElementById('form-title').innerText = "Pengajuan: " + jenis;
+            document.getElementById('jenis_surat').value = jenis;
+            document.getElementById('pesan-sukses').classList.add('hidden');
+            document.getElementById('pengajuanForm').reset();
+            document.getElementById('pengajuanForm').classList.remove('hidden');
+
+            document.querySelectorAll('.field-pribadi, .field-aktif, .field-akademik').forEach(el => el.classList.remove('hidden'));
+            document.querySelector('.field-tunjangan').classList.add('hidden');
+            document.querySelector('.field-penelitian').classList.add('hidden');
+
+            if (jenis === 'Surat Tunjangan Gaji') { document.querySelectorAll('.field-aktif').forEach(el => el.classList.add('hidden')); document.querySelector('.field-tunjangan').classList.remove('hidden'); }
+            else if (jenis === 'Surat Penelitian') { document.querySelectorAll('.field-pribadi, .field-aktif, .field-akademik').forEach(el => el.classList.add('hidden')); document.querySelector('.field-penelitian').classList.remove('hidden'); }
+        }
+
+        function kembaliKeMenu() { document.getElementById('form-section').classList.add('hidden'); document.getElementById('menu-section').classList.remove('hidden'); }
+
+        async function kirimData(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses PDF...'; btn.disabled = true;
+
+            const data = {
+                jenis_surat: document.getElementById('jenis_surat').value, nama: document.getElementById('nama').value, npm: document.getElementById('npm').value,
+                semester: document.getElementById('semester').value, prodi: document.getElementById('prodi').value, ttl: document.getElementById('ttl') ? document.getElementById('ttl').value : '',
+                alamat: document.getElementById('alamat') ? document.getElementById('alamat').value : '', whatsapp: document.getElementById('whatsapp') ? document.getElementById('whatsapp').value : '',
+                nama_ortu: document.getElementById('nama_ortu') ? document.getElementById('nama_ortu').value : '', nip_ortu: document.getElementById('nip_ortu') ? document.getElementById('nip_ortu').value : '',
+                pangkat_ortu: document.getElementById('pangkat_ortu') ? document.getElementById('pangkat_ortu').value : '', judul_skripsi: document.getElementById('judul_skripsi') ? document.getElementById('judul_skripsi').value : '',
+                tujuan_surat: document.getElementById('tujuan_surat') ? document.getElementById('tujuan_surat').value : ''
+            };
+
+            try {
+                await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+                document.getElementById('pengajuanForm').classList.add('hidden');
+                document.getElementById('pesan-sukses').classList.remove('hidden');
+            } catch (err) {} finally {
+                btn.innerHTML = 'Kirim Permohonan'; btn.disabled = false;
+                setTimeout(() => { kembaliKeMenu(); }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>
