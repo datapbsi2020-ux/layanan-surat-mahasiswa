@@ -11,7 +11,6 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .slide-down { animation: slideDown 0.3s ease-out; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        /* Style untuk tabel admin agar scrollable jika data banyak */
         .table-container { max-height: 400px; overflow-y: auto; }
     </style>
 </head>
@@ -53,9 +52,7 @@
         
         <div id="admin-dashboard" class="hidden fade-in bg-white rounded-2xl shadow-xl p-8 border-t-4 border-gray-800">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 mb-6 gap-4">
-                <div>
-                    <h2 class="text-2xl font-black text-gray-800 flex items-center gap-3"><i class="fas fa-user-shield text-gray-700"></i> Panel Kontrol Admin</h2>
-                </div>
+                <h2 class="text-2xl font-black text-gray-800 flex items-center gap-3"><i class="fas fa-user-shield text-gray-700"></i> Panel Kontrol Admin</h2>
                 <button onclick="logoutAdmin()" class="text-red-600 font-bold px-4 py-2 bg-red-50 hover:bg-red-100 rounded-lg transition text-sm flex items-center gap-2">
                     <i class="fas fa-sign-out-alt"></i> Keluar
                 </button>
@@ -152,55 +149,58 @@
         const PIN_ADMIN_BENAR = "123456"; 
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweIkYrC6HddF88UnlVhWI4ufwI_t0Jfomkii2cFW5iShN2DdQBgJzVegMe0tzs6O1EkA/exec';
 
-        function bukaModalLogin() { document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('pin-admin').value = ''; document.getElementById('error-pin').classList.add('hidden'); }
-        function tutupModalLogin() { document.getElementById('login-modal').classList.add('hidden'); }
+        // Mencegah error jika variabel tidak ditemukan
+        function elemenAman(id) { return document.getElementById(id) || { classList: { add:()=>{}, remove:()=>{} }, value: '', innerText: '', reset: ()=>{} }; }
+
+        function bukaModalLogin() { 
+            elemenAman('login-modal').classList.remove('hidden'); 
+            elemenAman('pin-admin').value = ''; 
+            elemenAman('error-pin').classList.add('hidden'); 
+        }
+        function tutupModalLogin() { elemenAman('login-modal').classList.add('hidden'); }
         function cekEnter(e) { if (e.key === "Enter") validasiLogin(); }
 
         function validasiLogin() {
-            if (document.getElementById('pin-admin').value === PIN_ADMIN_BENAR) {
+            if (elemenAman('pin-admin').value === PIN_ADMIN_BENAR) {
                 tutupModalLogin();
-                document.getElementById('menu-section').classList.add('hidden');
-                document.getElementById('form-section').classList.add('hidden');
-                document.getElementById('admin-dashboard').classList.remove('hidden');
-                // OTOMATIS MEMUAT DATA SPREADSHEET SAAT ADMIN LOGIN!
+                elemenAman('menu-section').classList.add('hidden');
+                elemenAman('form-section').classList.add('hidden');
+                elemenAman('admin-dashboard').classList.remove('hidden');
                 muatDataSpreadsheet();
             } else {
-                document.getElementById('error-pin').classList.remove('hidden');
+                elemenAman('error-pin').classList.remove('hidden');
             }
         }
 
-        function logoutAdmin() { document.getElementById('admin-dashboard').classList.add('hidden'); document.getElementById('menu-section').classList.remove('hidden'); }
+        function logoutAdmin() { 
+            elemenAman('admin-dashboard').classList.add('hidden'); 
+            elemenAman('menu-section').classList.remove('hidden'); 
+        }
 
-        // FUNGSI BARU: MENGAMBIL DATA DARI GOOGLE SHEETS
         async function muatDataSpreadsheet() {
-            const tabelBody = document.getElementById('tabel-data-mahasiswa');
-            const iconRefresh = document.getElementById('icon-refresh');
+            const tabelBody = elemenAman('tabel-data-mahasiswa');
+            const iconRefresh = elemenAman('icon-refresh');
             
-            iconRefresh.classList.add('fa-spin');
+            if(iconRefresh.classList) iconRefresh.classList.add('fa-spin');
             tabelBody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-2xl mb-2 text-blue-500 block"></i> Sinkronisasi Data Database...</td></tr>';
             
             try {
-                // Mengambil data JSON dari Google Apps Script
                 const response = await fetch(APPS_SCRIPT_URL);
                 const data = await response.json();
                 
-                tabelBody.innerHTML = ''; // Bersihkan tabel
-                
+                tabelBody.innerHTML = ''; 
                 if(data.length === 0) {
                     tabelBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Belum ada data permohonan surat.</td></tr>';
                 } else {
-                    // Masukkan data ke dalam tabel HTML
                     data.forEach(item => {
-                        // Memberikan warna label berdasarkan jenis surat
                         let badgeColor = item.jenis.includes("Aktif") ? "bg-blue-100 text-blue-800" : item.jenis.includes("Gaji") ? "bg-green-100 text-green-800" : "bg-purple-100 text-purple-800";
-                        
                         tabelBody.innerHTML += `
                             <tr class="hover:bg-gray-50 transition border-b border-gray-100">
-                                <td class="p-3 text-xs text-gray-500">${item.waktu.substring(0,19)}</td>
-                                <td class="p-3"><span class="px-2 py-1 rounded-md text-xs font-bold ${badgeColor}">${item.jenis}</span></td>
-                                <td class="p-3 font-mono text-sm">${item.npm}</td>
-                                <td class="p-3 font-bold text-gray-800">${item.nama}</td>
-                                <td class="p-3 text-sm">${item.prodi}</td>
+                                <td class="p-3 text-xs text-gray-500">${item.waktu ? item.waktu.substring(0,19) : '-'}</td>
+                                <td class="p-3"><span class="px-2 py-1 rounded-md text-xs font-bold ${badgeColor}">${item.jenis || '-'}</span></td>
+                                <td class="p-3 font-mono text-sm">${item.npm || '-'}</td>
+                                <td class="p-3 font-bold text-gray-800">${item.nama || '-'}</td>
+                                <td class="p-3 text-sm">${item.prodi || '-'}</td>
                             </tr>
                         `;
                     });
@@ -208,47 +208,55 @@
             } catch (error) {
                 tabelBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500 font-bold">Gagal memuat data. Pastikan Google Script sudah di-Deploy ulang.</td></tr>';
             } finally {
-                iconRefresh.classList.remove('fa-spin');
+                if(iconRefresh.classList) iconRefresh.classList.remove('fa-spin');
             }
         }
 
         function bukaForm(jenis) {
-            document.getElementById('menu-section').classList.add('hidden');
-            document.getElementById('form-section').classList.remove('hidden');
-            document.getElementById('form-title').innerText = "Pengajuan: " + jenis;
-            document.getElementById('jenis_surat').value = jenis;
-            document.getElementById('pesan-sukses').classList.add('hidden');
-            document.getElementById('pengajuanForm').reset();
-            document.getElementById('pengajuanForm').classList.remove('hidden');
+            elemenAman('menu-section').classList.add('hidden');
+            elemenAman('admin-dashboard').classList.add('hidden');
+            elemenAman('form-section').classList.remove('hidden');
+            elemenAman('form-title').innerText = "Pengajuan: " + jenis;
+            elemenAman('jenis_surat').value = jenis;
+            elemenAman('pesan-sukses').classList.add('hidden');
+            elemenAman('pengajuanForm').reset();
+            elemenAman('pengajuanForm').classList.remove('hidden');
 
             document.querySelectorAll('.field-pribadi, .field-aktif, .field-akademik').forEach(el => el.classList.remove('hidden'));
-            document.querySelector('.field-tunjangan').classList.add('hidden');
-            document.querySelector('.field-penelitian').classList.add('hidden');
+            document.querySelectorAll('.field-tunjangan, .field-penelitian').forEach(el => el.classList.add('hidden'));
 
-            if (jenis === 'Surat Tunjangan Gaji') { document.querySelectorAll('.field-aktif').forEach(el => el.classList.add('hidden')); document.querySelector('.field-tunjangan').classList.remove('hidden'); }
-            else if (jenis === 'Surat Penelitian') { document.querySelectorAll('.field-pribadi, .field-aktif, .field-akademik').forEach(el => el.classList.add('hidden')); document.querySelector('.field-penelitian').classList.remove('hidden'); }
+            if (jenis === 'Surat Tunjangan Gaji') { 
+                document.querySelectorAll('.field-aktif').forEach(el => el.classList.add('hidden')); 
+                document.querySelectorAll('.field-tunjangan').forEach(el => el.classList.remove('hidden')); 
+            } else if (jenis === 'Surat Penelitian') { 
+                document.querySelectorAll('.field-pribadi, .field-aktif, .field-akademik').forEach(el => el.classList.add('hidden')); 
+                document.querySelectorAll('.field-penelitian').forEach(el => el.classList.remove('hidden')); 
+            }
         }
 
-        function kembaliKeMenu() { document.getElementById('form-section').classList.add('hidden'); document.getElementById('menu-section').classList.remove('hidden'); }
+        function kembaliKeMenu() { 
+            elemenAman('form-section').classList.add('hidden'); 
+            elemenAman('menu-section').classList.remove('hidden'); 
+        }
 
         async function kirimData(e) {
             e.preventDefault();
-            const btn = document.getElementById('btn-submit');
+            const btn = elemenAman('btn-submit');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses PDF...'; btn.disabled = true;
 
             const data = {
-                jenis_surat: document.getElementById('jenis_surat').value, nama: document.getElementById('nama').value, npm: document.getElementById('npm').value,
-                semester: document.getElementById('semester').value, prodi: document.getElementById('prodi').value, ttl: document.getElementById('ttl') ? document.getElementById('ttl').value : '',
-                alamat: document.getElementById('alamat') ? document.getElementById('alamat').value : '', whatsapp: document.getElementById('whatsapp') ? document.getElementById('whatsapp').value : '',
-                nama_ortu: document.getElementById('nama_ortu') ? document.getElementById('nama_ortu').value : '', nip_ortu: document.getElementById('nip_ortu') ? document.getElementById('nip_ortu').value : '',
-                pangkat_ortu: document.getElementById('pangkat_ortu') ? document.getElementById('pangkat_ortu').value : '', judul_skripsi: document.getElementById('judul_skripsi') ? document.getElementById('judul_skripsi').value : '',
-                tujuan_surat: document.getElementById('tujuan_surat') ? document.getElementById('tujuan_surat').value : ''
+                jenis_surat: elemenAman('jenis_surat').value, nama: elemenAman('nama').value, npm: elemenAman('npm').value,
+                semester: elemenAman('semester').value, prodi: elemenAman('prodi').value, ttl: elemenAman('ttl').value,
+                alamat: elemenAman('alamat').value, whatsapp: elemenAman('whatsapp').value,
+                nama_ortu: elemenAman('nama_ortu').value, nip_ortu: elemenAman('nip_ortu').value,
+                pangkat_ortu: elemenAman('pangkat_ortu').value, judul_skripsi: elemenAman('judul_skripsi').value,
+                tujuan_surat: elemenAman('tujuan_surat').value
             };
 
             try {
                 await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-                document.getElementById('pengajuanForm').classList.add('hidden');
-                document.getElementById('pesan-sukses').classList.remove('hidden');
+                elemenAman('pengajuanForm').classList.add('hidden');
+                elemenAman('pesan-sukses').classList.remove('hidden');
             } catch (err) {} finally {
                 btn.innerHTML = 'Kirim Permohonan'; btn.disabled = false;
                 setTimeout(() => { kembaliKeMenu(); }, 3000);
