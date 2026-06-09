@@ -258,7 +258,6 @@
             const pinInput = document.getElementById('pin-admin').value;
             if (pinInput === PIN_ADMIN_BENAR) {
                 tutupModalLogin();
-                // Sembunyikan semua menu mahasiswa, tampilkan Dashboard Admin utama
                 document.getElementById('menu-section').classList.add('hidden');
                 document.getElementById('form-section').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
@@ -283,29 +282,26 @@
             document.getElementById('pengajuanForm').reset();
             document.getElementById('pengajuanForm').classList.remove('hidden');
 
-            // Tangkap seluruh bagian form input parsial
             const fPribadi = document.querySelectorAll('.field-pribadi');
             const fAktif = document.querySelectorAll('.field-aktif');
             const fAkademik = document.querySelectorAll('.field-akademik');
             const fTunjangan = document.querySelector('.field-tunjangan');
             const fPenelitian = document.querySelector('.field-penelitian');
 
-            // Kembalikan semua ke mode terlihat secara default
             fPribadi.forEach(el => el.classList.remove('hidden'));
             fAktif.forEach(el => el.classList.remove('hidden'));
             fAkademik.forEach(el => el.classList.remove('hidden'));
             fTunjangan.classList.add('hidden');
             fPenelitian.classList.add('hidden');
 
-            // Atur kondisional visibilitas kolom sesuai isi dokumen blanko aslinya
             if (jenis === 'Surat Tunjangan Gaji') {
-                fAktif.forEach(el => el.classList.add('hidden')); // Sembunyikan kolom WA biasa
-                fTunjangan.classList.remove('hidden'); // Munculkan field Orang Tua lengkap
+                fAktif.forEach(el => el.classList.add('hidden')); 
+                fTunjangan.classList.remove('hidden'); 
             } else if (jenis === 'Surat Penelitian') {
-                fPribadi.forEach(el => el.classList.add('hidden')); // Sembunyikan Alamat & TTL mahasiswa
-                fAktif.forEach(el => el.classList.add('hidden'));   // Sembunyikan WhatsApp
-                fAkademik.forEach(el => el.classList.add('hidden')); // Sembunyikan Semester
-                fPenelitian.classList.remove('hidden'); // Munculkan field Judul Penelitian & Tujuan Surat resmi
+                fPribadi.forEach(el => el.classList.add('hidden')); 
+                fAktif.forEach(el => el.classList.add('hidden'));   
+                fAkademik.forEach(el => el.classList.add('hidden')); 
+                fPenelitian.classList.remove('hidden'); 
             }
         }
 
@@ -320,12 +316,10 @@
             event.preventDefault();
             const btnSubmit = document.getElementById('btn-submit');
             
-            // Mengubah status UI tombol menjadi loading interaktif
             btnSubmit.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> <span>Sedang Sinkronisasi Cloud...</span>';
             btnSubmit.disabled = true;
             btnSubmit.classList.replace('bg-blue-800', 'bg-gray-500');
 
-            // Merangkum seluruh isian komponen data objek
             const data = {
                 jenis_surat: document.getElementById('jenis_surat').value,
                 nama: document.getElementById('nama').value,
@@ -343,27 +337,23 @@
             };
 
             try {
-                // Proses pengiriman POST API Fetch ke Google Apps Script Engine
                 await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Mencegah pemblokiran browser akibat kendala kebijakan CORS cross-domain
+                    mode: 'no-cors', 
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
 
-                // Tampilkan respon sukses terkirim
                 document.getElementById('pengajuanForm').classList.add('hidden');
                 document.getElementById('pesan-sukses').classList.remove('hidden');
 
             } catch (error) {
                 alert("Koneksi gagal terhubung ke Google Drive. Pastikan jaringan internet stabil.");
             } finally {
-                // Mengembalikan tombol ke keadaan semula
                 btnSubmit.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> <span>Kirim Permohonan Surat Resmi</span>';
                 btnSubmit.disabled = false;
                 btnSubmit.classList.replace('bg-gray-500', 'bg-blue-800');
                 
-                // Kembali ke menu awal secara otomatis setelah 4 detik peninjauan notifikasi sukses
                 if (!document.getElementById('pesan-sukses').classList.contains('hidden')) {
                     setTimeout(() => { kembaliKeMenu(); }, 4000);
                 }
